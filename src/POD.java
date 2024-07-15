@@ -2068,13 +2068,86 @@ class Sol {
             return 0;
         return 1;
     }
+    public TreeNode searchBST(TreeNode root, int val) {
+
+        TreeNode temp = root;
+
+        while (temp != null){
+            if(temp.val == val)
+                return temp;
+            if(val < temp.val )
+                temp =temp.left;
+            else
+                temp = temp.right;
+        }
+        return null;
+    }
 
     public void flatten(TreeNode root){
         helper(root);
     }
 
+    public TreeNode buildBST(int[] arr, int start, int end){
+        if(start<=end){
+            int mid = (start+end)/2;
+            TreeNode node = new TreeNode(arr[mid]);
+            node.left = buildBST(arr, start, mid-1);
+            node.right = buildBST(arr,mid+1, end);
+            return node;
+        }
+        return null;
+    }
+    public boolean checkBST(TreeNode root){
+        return checkBST(root, root.val);
+    }
+
+    public boolean checkBST(TreeNode root, int parent){
+        if(root == null)
+            return true;
+
+        if(root.left!=null) {
+            if(parent <= root.left.val){
+                return false;
+            }
+            if(!checkBST(root.left, Math.max(root.val, parent)))
+                return false;
+        }
+        if(root.right!=null) {
+            if(parent >= root.right.val)
+                return false;
+            return checkBST(root.right, Math.min(parent, root.val));
+        }
+        return true;
+
+    }
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+
+        Map<Integer,Integer> map = new HashMap<>();
+        for(int i=0; i<inorder.length; i++){
+            map.put(inorder[i], i);
+        }
+        return buildTree(map, preorder, 0, preorder.length-1, inorder, 0,inorder.length-1);
+
+    }
+
+    public TreeNode buildTree(Map<Integer, Integer> map, int[] pre, int preStart, int preEnd, int[] in, int inStart, int inEnd){
+
+        if(preStart>preEnd || inStart>inEnd)
+            return null;
+        int index = map.get(pre[preStart]);
+
+        TreeNode root = new TreeNode(pre[preStart]);
+        int inLength = index-inStart ;
+
+        root.left = buildTree(map,pre, preStart+1, preStart + inLength, in, inStart , index-1);
+
+        root.right = buildTree(map,pre, preStart+inLength+1, preEnd, in, index+1, inEnd);
+        return root;
 
 
+
+    }
 
     class Pair{
         TreeNode node;
