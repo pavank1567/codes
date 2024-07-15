@@ -1,0 +1,187 @@
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public List<Node> neighbors;
+    public Node() {
+        val = 0;
+        neighbors = new ArrayList<Node>();
+    }
+    public Node(int _val) {
+        val = _val;
+        neighbors = new ArrayList<Node>();
+    }
+    public Node(int _val, ArrayList<Node> _neighbors) {
+        val = _val;
+        neighbors = _neighbors;
+    }
+}
+*/
+
+class Solution {
+
+
+    // Another recursive DFS implementation, but this one makes calls on already processed nodes. So instead of checking and then (recursively) calling, we call and then check.
+    public Node cloneGraph(Node node) {
+        if (node == null) return null;
+        return clone(new HashMap<>(), node);
+    }
+
+    private Node clone(Map<Node, Node> copies, Node curr) {
+        if (copies.containsKey(curr)) {
+            return copies.get(curr);
+        }
+
+        Node currCopy = new Node(curr.val);
+        copies.put(curr, currCopy);
+        for (Node neighbor : curr.neighbors) {
+            currCopy.neighbors.add(clone(copies, neighbor));
+        }
+        return copies.get(curr);
+    }
+
+
+
+
+
+
+    // Recursive DFS.
+    // Create a copy of the current node, set the neighbours of the copy equal to copies of the neighbours of the current node (recursive call).
+    // O(n + m) time where n is the number of nodes in the graph and m is the number of edges. In the worst case O(m) == O(n^2) because each node could be connected to all other nodes.
+    // O(n) space, because of the HashMap and the stack space for the recursive calls.
+    public Node cloneGraphFourth(Node node) {
+        if (node == null) return null;
+        return helper(new HashMap<>(), node);
+    }
+
+    private Node helper(Map<Integer, Node> copyNodes, Node currNode) {
+        assert (!copyNodes.containsKey(currNode.val)) : "We don't recurse on nodes that already have a copy";
+
+        // Create and store a copy of currNode.
+        Node currNodeCopy = new Node(currNode.val);
+        copyNodes.put(currNode.val, currNodeCopy);
+
+        // Add copies of the neighbors of currNode as the neighbors of the copied currNode. Create a copy of the neighbor if necessary.
+        for (Node neighbor : currNode.neighbors) {
+            if (!copyNodes.containsKey(neighbor.val)) {
+                helper(copyNodes, neighbor);
+            }
+            assert (copyNodes.containsKey(neighbor.val)) : "We should have created a copy in case one didn't exist already";
+            currNodeCopy.neighbors.add(copyNodes.get(neighbor.val));
+        }
+
+        return currNodeCopy;
+    }
+
+
+
+
+
+
+
+    // Iterative BFS.
+    // Create a copy, push it to the stack so that it's neighbors get processed.
+    // O(n + m) time where n is the total number of nodes in the graph and m is the total number of edges, because we iterate through all nodes and all edges. Note that in the worst case O(m) == O(n^2) because each node could have an edge to every other node in the graph.
+    // O(n) space, because we store a copy of each node in the HashMap, and the stack could also contain O(n) nodes if one of the nodes has edges to all other nodes.
+    public Node cloneGraphThird(Node node) {
+        if (node == null) return null;
+        Map<Node, Node> map = new HashMap<>();  // Maps a node in the original graph to the corresponding node in the cloned graph.
+        Deque<Node> stack = new ArrayDeque<>(); // Contains nodes whose copies have been created and whose connections still need to be added.
+        map.put(node, new Node(node.val));
+        stack.addFirst(node);
+        while (stack.size() > 0) {
+            Node curr = stack.removeFirst();
+            // Add all connections for the current node, create new copies if necessary and add them to the stack so they can add their connections.
+            for (Node neighbor : curr.neighbors) {
+                if (!map.containsKey(neighbor)) {
+                    map.put(neighbor, new Node(neighbor.val));
+                    stack.addFirst(neighbor);
+                }
+                map.get(curr).neighbors.add(map.get(neighbor));      // Create connection between copy of curr node and the copy of the neighbor node.
+            }
+        }
+        return map.get(node);
+    }
+
+
+
+
+
+
+
+
+
+
+    // O(n^2) time where n is the number of nodes. This is because for each node we iterate through all its neighbours and in the worst case all nodes are connected to each other.
+    // O(n) space because we have exactly one map entry for each node and each node gets added and removed from the queue exactly once.
+    public Node cloneGraphSecond(Node node) {
+        if (node == null) return null;
+        Map<Node, Node> map = new HashMap<>();      // Maps a node from original graph to the corresponding node in the cloned graph.
+        Deque<Node> queue = new ArrayDeque<>();     // Do a BFS to create a copy of all nodes and create a copy of all edges.
+        map.put(node, new Node(node.val));
+        queue.addLast(node);
+        while (queue.size() > 0) {
+            // Queue contains nodes whose copy we have already created but whose edges might still need to be added to the cloned graph. If the graph is connected we are guaranteed to clone/reach each node with the BFS and we are guaranteed to iterate through the neighbours of each node to clone the corresponding edges of each node.
+            Node currNode = queue.removeFirst();
+            // Create edges for currNode in the cloned graph.
+            for (Node currNeighbor : currNode.neighbors) {
+                if (!map.containsKey(currNeighbor)) {
+                    map.put(currNeighbor, new Node(currNeighbor.val));         // Create a copy of currNeighbor.
+                    queue.addLast(currNeighbor);                               // Add currNeighbor to the queue so that its connections will be added to the cloned graph.
+                }
+                map.get(currNode).neighbors.add(map.get(currNeighbor));       // Create the connection between currNode and the currNeighbor in the cloned graph.
+            }
+        }
+        return map.get(node);
+    }
+
+
+
+
+
+
+
+
+
+    // This exact solution previously passed with 2ms and now it takes 28ms huh. Test cases probably changed.
+    public Node cloneGraphFirst(Node node) {
+        if (node == null) return null;
+        // maps node from old graph to the copy of that node in the new cloned graph
+        Map<Node, Node> map = new HashMap<>();
+
+        // create copies of nodes
+        // BFS while creating a map entry for every node that we haven't seen so far
+        Deque<Node> queue = new ArrayDeque<>();
+        Set<Node> seen = new HashSet<>();
+
+        // process first node manually
+        map.put(node, new Node(node.val, new ArrayList<>()));
+        queue.addLast(node);
+        seen.add(node);
+
+        // every loop creates a complete copy of one node in the cloned graph
+        while (queue.size() > 0) {
+            Node currNode = queue.removeFirst();
+
+            // all nodes in the map already have their copy in the new cloned graph
+            assert (map.containsKey(currNode));
+
+
+            // add all connections (neighbors) to currNode
+            for (Node currNeighbor : currNode.neighbors) {
+
+                // clone currNeighbor if a copy of this node doesn't exist already
+                if (!seen.contains(currNeighbor)) {
+
+                    map.put(currNeighbor, new Node(currNeighbor.val, new ArrayList<>()));  // create copy
+                    queue.addLast(currNeighbor);    // add to queue so we can add neighbors to this node in future iterations of this while loop
+                    seen.add(currNeighbor);         // add to set to avoid creating multiple copies of one node
+                }
+
+                map.get(currNode).neighbors.add(map.get(currNeighbor));
+            }
+        }
+
+        return map.get(node);
+    }
+}
