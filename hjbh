@@ -1,37 +1,29 @@
-Given a binary tree having n nodes.
-Check whether all of its nodes have the value equal to the sum of their child nodes.
-Return 1 if all the nodes in the tree satisfy the given properties, else it return 0.
+Given a sequence of matrices, find the most efficient way to multiply these matrices together.
+The efficient way is the one that involves the least number of multiplications.
 
-For every node, data value must be equal to the sum of data values in left and right children. Consider data value as 0 for NULL child.  Also, leaves are considered to follow the property.
+The dimensions of the matrices are given in an array arr[] of size N (such that N = number of matrices + 1)
+where the ith matrix has the dimensions (arr[i-1] x arr[i]).
 
 Example 1:
 
-Input:
-Binary tree
-       35
-      /   \
-     20  15
-    /  \  /  \
-   15 5 10 5
-Output: 
-1
-Explanation: 
-Here, every node is sum of its left and right child.
+Input: N = 5
+arr = {40, 20, 30, 10, 30}
+Output: 26000
+Explanation: There are 4 matrices of dimension
+40x20, 20x30, 30x10, 10x30. Say the matrices are
+named as A, B, C, D. Out of all possible combinations,
+the most efficient way is (A*(B*C))*D.
+The number of operations are -
+20*30*10 + 40*20*10 + 40*10*30 = 26000.
+
 Example 2:
 
-Input:
-Binary tree
-       1
-     /   \
-    4    3
-   /  
-  5    
-Output: 
-0
-Explanation: 
-Here, 1 is the root node and 4, 3 are its child nodes. 4 + 3 = 7 which is not equal to the value of root node. Hence, this tree does not satisfy the given condition.
-Your Task:
-You don't need to read input or print anything. Your task is to complete the function isSumProperty() that takes the root Node of the binary tree as input and returns 1 if all the nodes in the tree satisfy the following properties, else it returns 0.
-
-Expected Time Complexiy: O(n).
-Expected Auxiliary Space: O(Height of the Tree).
+Input: N = 4
+arr = {10, 30, 5, 60}
+Output: 4500
+Explanation: The matrices have dimensions
+10*30, 30*5, 5*60. Say the matrices are A, B
+and C. Out of all possible combinations,the
+most efficient way is (A*B)*C. The
+number of multiplications are -
+10*30*5 + 10*5*60 = 4500.

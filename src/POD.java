@@ -85,8 +85,11 @@ public class POD {
 //        n4.neighbors = Arrays.asList(n1,n3);
 //        cloneGraph(n1);
 
+        ArrayList<Integer> arr1 = new ArrayList<>(Arrays.asList(1,2,4,5));
+        ArrayList<Integer> arr2 = new ArrayList<>(Arrays.asList(5,4,8,6));
         Sol solution= new Sol();
-        
+        Sol.maxProfit(arr1,arr2,4,5);
+
 //        int[][] graph = {{2,3,5,6,7,8,9},
 //{2,3,4,5,6,7,8,9},
 //{0,1,3,4,5,6,7,8,9},
@@ -102,22 +105,37 @@ public class POD {
 //        solution.recoverFromPreorder("d");
 //        solution.paths;
 //        solution.cycleLengthQueries(1, new int[][]{});
-        TreeNode root = new TreeNode(1);
+        /*TreeNode root = new TreeNode(1);
 
         TreeNode temp1 = new TreeNode(2);
         temp1.left = new TreeNode(3);
         temp1.right = new TreeNode(4);
 
-        TreeNode temp2 = new TreeNode(2);
-        temp2.left = new TreeNode(3);
-        temp2.right = new TreeNode(4);
+        TreeNode temp2 = new TreeNode(5);
+        temp2.left = new TreeNode(6);
+        temp2.right = new TreeNode(7);
         root.left = temp1;
         root.right = temp2;
 
-        solution.sym(root);
+//        solution.sym(root);
 
+//        solution.connect(root);
 
+        solution.isValidBST(root);*/
+//        MedianFinder medianFinder = new MedianFinder();
+//        medianFinder.addNum(1);
+//        System.out.println(medianFinder.root);
+//        System.out.println(medianFinder.findMedian());
+//        medianFinder.addNum(2);
+//        System.out.println(medianFinder.root);
+//        System.out.println(medianFinder.findMedian());
+//        medianFinder.addNum(3);
+//        System.out.println(medianFinder.root);
+//        System.out.println(medianFinder.findMedian());
 
+        int[] nums = {10,9,2,5,3,7,101,18};
+        solution.lengthOfLIS(nums);
+        solution.maxProduct(new int[]{});
 
     }
 
@@ -2120,33 +2138,254 @@ class Sol {
         return true;
 
     }
+    public int maxProduct(int[] nums) {
 
-    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        nums = new int[]{0,10,10,10,10,10,10,10,10,-10,-10,-10,10,10,10,10,10,10,10,10,10,0};
+
+        int maxProduct=nums[0];
+        int product = 1;
+        int product2 = 1;
+        for (int num : nums) {
+            product = product * num;
+            if (product <= 0) {
+                product = 1;
+            }
+            maxProduct = Math.max(product, maxProduct);
+        }
+        System.out.println(maxProduct);
+        return maxProduct;
+    }
+
+//    public TreeNode buildTree(int[] preorder, int[] inorder) {
+//
+//        Map<Integer,Integer> map = new HashMap<>();
+//        for(int i=0; i<inorder.length; i++){
+//            map.put(inorder[i], i);
+//        }
+//        return buildTree(map, preorder, 0, preorder.length-1, inorder, 0,inorder.length-1);
+//
+//    }
+//
+//    public TreeNode buildTree(Map<Integer, Integer> map, int[] pre, int preStart, int preEnd, int[] in, int inStart, int inEnd){
+//
+//        if(preStart>preEnd || inStart>inEnd)
+//            return null;
+//        int index = map.get(pre[preStart]);
+//
+//        TreeNode root = new TreeNode(pre[preStart]);
+//        int inLength = index-inStart ;
+//
+//        root.left = buildTree(map,pre, preStart+1, preStart + inLength, in, inStart , index-1);
+//
+//        root.right = buildTree(map,pre, preStart+inLength+1, preEnd, in, index+1, inEnd);
+//        return root;
+//
+//
+//
+//    }
+    public TreeNode buildTree(int[] postorder, int[] inorder) {
 
         Map<Integer,Integer> map = new HashMap<>();
         for(int i=0; i<inorder.length; i++){
             map.put(inorder[i], i);
         }
-        return buildTree(map, preorder, 0, preorder.length-1, inorder, 0,inorder.length-1);
+        return buildTree(map, postorder, 0, postorder.length-1, inorder, 0,inorder.length-1);
 
     }
 
-    public TreeNode buildTree(Map<Integer, Integer> map, int[] pre, int preStart, int preEnd, int[] in, int inStart, int inEnd){
+    public TreeNode buildTree(Map<Integer, Integer> map, int[] post, int postStart, int postEnd, int[] in, int inStart, int inEnd){
 
-        if(preStart>preEnd || inStart>inEnd)
+        if(postStart>postEnd || inStart>inEnd)
             return null;
-        int index = map.get(pre[preStart]);
+        int index = map.get(post[postEnd]);
 
-        TreeNode root = new TreeNode(pre[preStart]);
-        int inLength = index-inStart ;
+        TreeNode root = new TreeNode(post[postEnd]);
+        int inLength = inEnd - index ;
 
-        root.left = buildTree(map,pre, preStart+1, preStart + inLength, in, inStart , index-1);
+        root.left = buildTree(map,post, postStart, postEnd - inLength - 1, in, inStart , index-1);
 
-        root.right = buildTree(map,pre, preStart+inLength+1, preEnd, in, index+1, inEnd);
+        root.right = buildTree(map,post, postEnd - inLength, postEnd-1, in, index+1, inEnd);
         return root;
 
+    }
+    public TreeNode connect(TreeNode root) {
+
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(root);
+        while (!q.isEmpty()){
+
+            TreeNode prev = null;
+            int sz = q.size();
+
+            for(int i=0;i<sz; i++){
+                TreeNode node = q.poll();
+                if(prev!=null)
+                    prev.next = node;
+
+                if(node.left!=null) {
+                    q.add(node.left);
+                    q.add(node.right);
+                }
+                prev = node;
+            }
+        }
+        return root;
+    }
+    public TreeNode bstFromPreorder(int[] preorder) {
 
 
+        Stack<TreeNode> stack = new Stack<>();
+
+        TreeNode root = new TreeNode(preorder[0]);
+        stack.push(root);
+        int i=0;
+        while(!stack.isEmpty()){
+            TreeNode node = new TreeNode(preorder[i++]);
+            if(stack.peek().val > node.val){
+                stack.peek().left = node;
+            }
+            else{
+                TreeNode temp=stack.peek();
+                while(!stack.isEmpty() && stack.peek().val < node.val) {
+                    temp = stack.peek();
+                    stack.pop();
+                }
+                temp.right = node;
+
+            }
+            stack.push(node);
+        }
+        return root;
+    }
+
+    public TreeNode bstHelper(int[] preorder, int start, int end, TreeNode parent, TreeNode cur){
+
+        TreeNode node = new TreeNode(preorder[start]);
+        if(cur.val > node.val){
+            cur.left = node;
+            bstHelper(preorder, start+1, end, cur,node);
+        }
+        else {
+            if(parent.val < node.val)
+                return null;
+            cur.right = node;
+        }
+        return node;
+    }
+
+
+
+    public int lengthOfLIS(int[] nums) {
+        int[] dp =new int[nums.length];
+        int res=1;
+        for(int i = nums.length-1;i>=0;i--){
+            int maxi = 1;
+            for(int j = i ; j< nums.length ;j++){
+                if(nums[i] < nums[j]){
+                    maxi = Math.max(maxi,1 + dp[j]);
+                }
+            }
+            dp[i]= maxi;
+            res = Math.max(maxi,res);
+        }
+
+        return res;
+
+    }
+    public int msis(int[] nums) {
+        int[] dp =new int[nums.length];
+        int res=1;
+        for(int i = nums.length-1;i>=0;i--){
+            int maxi = nums[i];
+            for(int j = i ; j< nums.length ;j++){
+                if(nums[i] < nums[j]){
+                    maxi = Math.max(maxi,nums[i] + dp[j]);
+                }
+            }
+            dp[i]= maxi;
+            res = Math.max(maxi,res);
+        }
+
+        return res;
+
+    }
+
+    public int mcm(int[] nums){
+        int[][] dp = new int[nums.length][nums.length];
+        return mcm(nums, 1, nums.length-1, dp);
+    }
+    public int mcm(int[] nums, int i, int j, int[][] dp){
+        if(i==j)
+            return 0;
+        if (dp[i][j]!=0)
+            return dp[i][j];
+
+        int mini = Integer.MAX_VALUE;
+        for(int k=i;k<j;k++){
+            int multi = mcm(nums, i, k, dp) + mcm(nums,k+1,j, dp) + nums[i-1] * nums[k] * nums[j];
+            mini = Math.min(mini, multi);
+        }
+        dp[i][j] = mini;
+        return mini;
+    }
+
+    int[][] dp;
+    public int lcs(String s1, String s2){
+        int m = s1.length();
+        int n = s2.length();
+        int[] prev = new int[n+1];
+        int[] current = new int[n+1];
+
+        for(int i=1;i<=s1.length();i++){
+            for(int j=1; j<=s2.length(); j++){
+                if(s1.charAt(i-1)==s2.charAt(j-1)){
+                    current[j] = 1 + prev[j-1];
+                }
+                else {
+                    current[j] = Math.max(prev[j],current[j-1]);
+                }
+            }
+            prev = current;
+        }
+        return current[m];
+//        return lcs(s1, s2, 0, 0);
+    }
+
+    public int lcs(String s1, String s2, int ind1, int ind2){
+        if(ind1 == s1.length() || ind2==s2.length())
+            return 0;
+        if(dp[ind1][ind2]!=-1)
+            return dp[ind1][ind2];
+        if(s1.charAt(ind1)==s2.charAt(ind2)) {
+            dp[ind1][ind2] = 1 + lcs(s1, s2, ind1 + 1, ind2 + 1);
+        }
+        else {
+            int pick1 = lcs(s1, s2, ind1 + 1, ind2);
+            int pick2 = lcs(s1, s2, ind1, ind2 + 1);
+            dp[ind1][ind2] = Math.max(pick1, pick2);
+        }
+        return dp[ind1][ind2];
+    }
+//    public int lis(int[] nums, int index , int prev){
+//
+//        if(index==nums.length) {
+//            return 0;
+//        }
+//        if(dp[prev+1][index]!=-1){
+//            return dp[prev+1][index];
+//        }
+//        int pick =0;
+//        if(prev==-1 || nums[index] > nums[prev]){
+//            pick = 1+lis(nums,index+1,index);
+//        }
+//        int notPick = lis(nums,index+1,prev);
+//
+//        dp[prev+1][index] = Math.max(pick, notPick);
+////        System.out.println(dp[prev+1][index]);
+//        return Math.max(pick, notPick);
+//    }
+    public boolean canPick(int i, int j){
+        return i > j;
     }
 
     class Pair{
@@ -2158,10 +2397,194 @@ class Sol {
         }
     }
 
+    public static int maxProfit(ArrayList<Integer> values, ArrayList<Integer> weights, int n, int w) {
+        // Write your code here.
+        ;
+        int[][] dp = new int[n+1][w+1];
+        return maxProfit(values, weights ,0, n, w, dp);
+    }
+    public static int maxProfit(ArrayList<Integer> values, ArrayList<Integer> weights, int ind, int n, int w, int[][] dp) {
+        if(ind==n)
+            return 0;
+        if(dp[ind][w]!=-1)
+            return dp[ind][w];
+        int pick = 0;
+        if(weights.get(ind) <= w ){
+            pick = values.get(ind) + maxProfit(values, weights,ind+1,n,w - weights.get(ind), dp);
+        }
+        int notPick = maxProfit(values, weights,ind+1,n,w, dp);
+        dp[ind][w] = Math.max(pick,notPick);
+        return dp[ind][w];
+    }
 
 
 
 
 
 
+        public boolean isValidBST(TreeNode root) {
+        root = new TreeNode(2);
+        root.left = new TreeNode(1);
+        root.right = new TreeNode(3);
+//        Long.MIN_VALUE
+//        System.out.println(checkBST(root, Lon.MIN_VALUE, Integer.MAX_VALUE));
+        return checkBST(root, Long.MIN_VALUE, Long.MAX_VALUE);
+    }
+
+    public boolean checkBST(TreeNode root, long lowerBound, long upperBound){
+        if(root==null) {
+            return true;
+        }
+        if(root.val <= lowerBound || root.val >= upperBound) {
+            return false;
+        }
+        if(!checkBST(root.left, lowerBound, root.val)) {
+            return false;
+        }
+        return checkBST(root.right, root.val, upperBound);
+
+    }
+
+    public TreeNode findLCA(TreeNode root, TreeNode p, TreeNode q){
+
+        if(root == null){
+            return null;
+        }
+        if(root.val >= p.val && root.val<=q.val)
+            return root;
+        if(root.val > q.val){
+            return findLCA(root.left, p, q);
+        }
+        return findLCA(root.right, p, q);
+    }
+
+    public static void findPreSuc(TreeNode root, TreeNode[] pre, TreeNode[] suc, int key) {
+        // code here.
+        // update pre[0] with the predecessor of the key
+        // update suc[0] with the successor of the key
+
+        //10 2 11 1 5 N N N N 3 6 N 4
+
+    }
+
+    public static void findPre(TreeNode root, TreeNode[] pre, int key){
+        while (root!=null){
+            if(key > root.val){
+                pre[0] = root;
+                root = root.right;
+            }
+            else {
+                root = root.left;
+            }
+        }
+    }
+    public static void findSuccessor(TreeNode root, TreeNode[] pre, int key){
+        while (root!=null){
+            if(key < root.val){
+                pre[0] = root;
+                root = root.right;
+            }
+            else {
+                root = root.left;
+            }
+        }
+    }
+    public static TreeNode findKey(TreeNode root, int key){
+        while (root!=null){
+            if(root.val == key )
+                return root;
+            if(root.val > key)
+                root = root.left;
+            else
+                root = root.right;
+        }
+        return null;
+    }
+
+    public static void makeString(String s1, String s2){
+        int[][] dp = new int[s1.length()][s2.length()];
+        for(int[] i : dp){
+            Arrays.fill(i, -1);
+        }
+        recur(s1,s2,s1.length()-1,s2.length()-1, dp);
+    }
+    public static int recur(String s1, String s2, int i, int j, int[][] dp){
+
+        if(i==-1)
+            return j+1;
+        if (j==-1)
+            return i+1;
+        if(dp[i][j]!=-1)
+            return dp[i][j];
+
+        if(s1.charAt(i) == s2.charAt(j)){
+            dp[i][j] = recur(s1,s2,i-1,j-1,dp);
+        }
+        else{
+            dp[i][j] = Math.min(1+recur(s1,s2,i-1,j-1,dp), Math.min(1+recur(s1,s2,i-1,j,dp), 1+recur(s1,s2,i,j-1,dp)));
+        }
+        return dp[i][j];
+    }
+
+
+
+}
+
+class MedianFinder {
+
+    TreeNode root;
+    PriorityQueue<Double> g;
+    PriorityQueue<Double> s;
+    public MedianFinder() {
+        g = new PriorityQueue<>();
+        s = new PriorityQueue<>();
+    }
+    public void addNum(int num) {
+        s.add(-1.0 * num);
+        g.add(-1.0 * s.poll());
+        if (g.size() > s.size())
+            s.add(-1.0 * g.poll());
+    }
+
+    public double findMedian() {
+        if (g.size() != s.size())
+            return  -1.0 * s.peek();
+        else
+            return (g.peek() - s.peek() ) / 2;
+    }
+    public void inorder(TreeNode root, int[] index, int[] num, int k){
+        if(root == null) {
+            return;
+        }
+        inorder(root.left, index, num, k);
+        index[0]++;
+        if(index[0]==k-1){
+            num[1]=root.val;
+        }
+        if(index[0] == k ){
+            num[0] = root.val;
+            return;
+        }
+        inorder(root.right, index, num, k);
+    }
+    public static void streamMed(int A[], int N)
+    {
+        // Declaring two min heap
+        PriorityQueue<Double> g = new PriorityQueue<>();
+        PriorityQueue<Double> s = new PriorityQueue<>();
+        for (int i = 0; i < N; i++) {
+
+            // Negation for treating it as max heap
+            s.add(-1.0 * A[i]);
+            g.add(-1.0 * s.poll());
+            if (g.size() > s.size())
+                s.add(-1.0 * g.poll());
+
+            if (g.size() != s.size())
+                System.out.println(-1.0 * s.peek());
+            else
+                System.out.println((g.peek() - s.peek())
+                        / 2);
+        }
+    }
 }
